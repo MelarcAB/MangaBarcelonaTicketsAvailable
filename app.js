@@ -16,7 +16,6 @@ const timerMail = ms => new Promise(res => setTimeout(res, 3000))
 
 //VARIABLES
 
-
 //from json
 var URL = "";
 var emails = "";
