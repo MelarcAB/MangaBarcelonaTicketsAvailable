@@ -1,0 +1,22 @@
+{
+  "name": "SalonMangaEntradas",
+  "version": "1.0.0",
+  "description": "Programa para detectar el momento en que las entradas estén disponibles en la web del MangaBarcelona. Una vez se detecte se enviará una alerta a los emails indicados",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mangabarcelona",
+    "email",
+    "notificar",
+    "melarcab"
+  ],
+  "author": "MelarcAB",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemailer": "^6.6.5",
+    "request": "^2.88.2"
+  }
+}
