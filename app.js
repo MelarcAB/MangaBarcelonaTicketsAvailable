@@ -10,12 +10,15 @@ const port = 9797
 //Tiempo entre peticiones a la URL
 const timer = ms => new Promise(res => setTimeout(res, waitSecs))
 //Tiempo entre envío de emails
-const timerMail = ms => new Promise(res => setTimeout(res, 3000))
+const timerMail = ms => new Promise(res => setTimeout(res, 500))
 
+
+const ejecutarEnvioCorreos = async () => {
+    const result = await sendEmails()
+  }
 
 
 //VARIABLES
-
 //from json
 var URL = "";
 var emails = "";
@@ -24,13 +27,14 @@ var email_sender = ""
 var email_password = ""
 var keywords = ""
 
-
 //local vars
 var status_repeat = true;
 
 
+//start functions
+console.log("-- INICIANDO APP --")
 initVars()
-
+makePetitions()
 
 
 
@@ -39,18 +43,25 @@ initVars()
 
 function petitionRepeat() {
     console.log("> Obteniendo contenido de la web " + URL);
-    request(URL_TO_CHECK, function (error, response, body) {
+    request(URL, function (error, response, body) {
         // Mostrar status petición
         //console.log('statusCode:', response && response.statusCode); 
 
         if (error == null) {
             // var contiene_keywords = checkData();
 
-            console.log('> Datos recibidos de la URL: '); // Print the HTML for the Google homepage.
+            console.log('> Datos recibidos de la URL. ');
+            console.log('> Buscando keywords... [' + keywords + ']');
             //console.log('>Datos recibidos de la URL: '+checkData, body); // Print the HTML for the Google homepage.
+            if (checkData(body)) {
+                console.log("> Se han encontrado coincidencias. Se enviarán los email.")
+                ejecutarEnvioCorreos()
+            } else {
+                console.log("> No se han encontrado coincidencias.")
+            }
 
         } else {
-            console.log('> Error al obtener datos de la URL:\n', error); // Print the HTML for the Google homepage.
+            console.log('> Error al obtener datos de la URL:\n', error);
         }
 
     });
@@ -76,8 +87,12 @@ function initVars() {
     }
 }
 
+async function exitApp() {
+    console.log("> Se terminará la ejecución de la app.")
+    process.exit()
+};
 
-async function makePetition() {
+async function makePetitions() {
 
     do {
         petitionRepeat();
@@ -88,15 +103,26 @@ async function makePetition() {
 
 //makePetition();
 //sendEmailAlerts()
-sendEmails();
+//sendEmails();
 
 async function sendEmails() {
     var emails_to_send = emails.split(",");
 
     for (let i = 0; i < emails_to_send.length; i++) {
         sendEmailAlert(emails_to_send[i]);
-        await timerMail();
+
+        if (i + 1 == emails_to_send.length) {
+            await timerMail()
+
+            await exitApp()
+
+        } else {
+            await timerMail()
+
+        }
     }
+
+
 
 }
 
@@ -128,12 +154,26 @@ function sendEmailAlert(email) {
         if (err)
             console.log(err);
         else
-            console.log(">Email enviado a " + email);
+            console.log("> Email enviado a " + email);
     });
 
 }
 
 
+function checkData(data = "") {
+    if (data != "") {
+        let encontrado = false;
+        let arr_keywords = keywords.split(",");
+        for (var i = 0; i < arr_keywords.length; i++) {
+            let actual_keyword = (arr_keywords[i])
+            if (data.includes(actual_keyword)) {
+                encontrado = true
+            }
+        }
+        return encontrado;
+    }
+    return false;
+}
 
 
 
