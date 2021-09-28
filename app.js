@@ -66,8 +66,8 @@ function petitionRepeat() {
 
 function initVars() {
     try {
-        const jsonString = fs.readFileSync("./datos.json");
-        const datos = JSON.parse(jsonString);
+        var jsonString = fs.readFileSync("./datos.json");
+        var datos = JSON.parse(jsonString);
         URL = datos.URL;
         emails = datos.emails;
         waitSecs = datos.delay;
@@ -77,6 +77,7 @@ function initVars() {
 
     } catch (err) {
         console.log(">ERROR al leer datos.json :" + err);
+        exitApp() 
         return;
     }
 }
