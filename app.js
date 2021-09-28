@@ -75,7 +75,8 @@ function initVars() {
         return;
     }
 }
-//test e
+
+
 async function makePetition() {
 
     do {
