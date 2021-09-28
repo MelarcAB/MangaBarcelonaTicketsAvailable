@@ -38,18 +38,13 @@ makePetitions()
 
 
 
-
-
-
 function petitionRepeat() {
     console.log("> Obteniendo contenido de la web " + URL);
     request(URL, function (error, response, body) {
         // Mostrar status petición
         //console.log('statusCode:', response && response.statusCode); 
-
         if (error == null) {
             // var contiene_keywords = checkData();
-
             console.log('> Datos recibidos de la URL. ');
             console.log('> Buscando keywords... [' + keywords + ']');
             //console.log('>Datos recibidos de la URL: '+checkData, body); // Print the HTML for the Google homepage.
@@ -66,7 +61,6 @@ function petitionRepeat() {
 
     });
 }
-
 
 
 
@@ -101,9 +95,6 @@ async function makePetitions() {
 
 }
 
-//makePetition();
-//sendEmailAlerts()
-//sendEmails();
 
 async function sendEmails() {
     var emails_to_send = emails.split(",");
@@ -113,23 +104,12 @@ async function sendEmails() {
 
         if (i + 1 == emails_to_send.length) {
             await timerMail()
-
             await exitApp()
-
         } else {
             await timerMail()
-
         }
     }
-
-
-
 }
-
-
-
-
-
 
 //Send email de alerta
 function sendEmailAlert(email) {
