@@ -15,8 +15,9 @@ const timerMail = ms => new Promise(res => setTimeout(res, 500))
 
 const ejecutarEnvioCorreos = async () => {
     const result = await sendEmails()
-  }
+}
 
+var html_content = "";
 
 //VARIABLES
 //from json
@@ -27,6 +28,12 @@ var email_sender = ""
 var email_password = ""
 var keywords = ""
 
+//ACTION cambia el funcionamento de la aplicación
+//action = 1 -> busca keywords a la URL -> cuando detecta coincidencias envía un email a los correos configurados
+//action = 2 -> guarda el contenido de la URL y comprueba cuando se han realizado cambios. Cuando se detecta el mínimo cambio en el contenido envía EMAIL a los configurados
+
+var action = ""
+
 //local vars
 var status_repeat = true;
 
@@ -34,7 +41,13 @@ var status_repeat = true;
 //start functions
 console.log("-- INICIANDO APP --")
 initVars()
-makePetitions()
+
+
+if (action == '1') {
+    makePetitions()
+} else if (action == '2') {
+    initCheckWebChanges()
+}
 
 
 
@@ -63,8 +76,47 @@ function petitionRepeat() {
 }
 
 
+async function getHtmlContent() {
+    console.log("> Obteniendo contenido de la web " + URL);
+    await request(URL, function (error, response, body) {
+        var send_mail_alert = false;
+        if (error == null) {
+            // var contiene_keywords = checkData();
+            console.log('> Datos recibidos de la URL. ');
+            if (html_content == "") {
+                html_content = body
+                console.log("> Información guardada")
+            } else {
+                //Detectar cambios en el HTML
+                if (html_content != body) {
+                    send_mail_alert = true
+                } else {
+                    console.log("> No hay cambios")
 
-function initVars() {
+                }
+            }
+
+            if (send_mail_alert) {
+                sendEmails()
+            }
+            //console.log('> Buscando keywords... [' + keywords + ']');
+            //console.log('>Datos recibidos de la URL: '+checkData, body); // Print the HTML for the Google homepage.
+            /*  if (checkData(body)) {
+                  console.log("> Se han encontrado coincidencias. Se enviarán los email.")
+                  ejecutarEnvioCorreos()
+              } else {
+                  console.log("> No se han encontrado coincidencias.")
+              }*/
+
+        } else {
+            console.log('> Error al obtener datos de la URL:\n', error);
+        }
+
+    });
+}
+
+
+async function initVars() {
     try {
         var jsonString = fs.readFileSync("./datos.json");
         var datos = JSON.parse(jsonString);
@@ -74,10 +126,11 @@ function initVars() {
         email_sender = datos.email_sender
         email_password = datos.email_password
         keywords = datos.keywords
+        action = datos.action
 
     } catch (err) {
         console.log(">ERROR al leer datos.json :" + err);
-        exitApp() 
+        exitApp()
         return;
     }
 }
@@ -94,6 +147,14 @@ async function makePetitions() {
         await timer(waitSecs); // esperar por cada peticion
     } while (status_repeat);
 
+}
+
+async function initCheckWebChanges() {
+
+    do {
+        getHtmlContent();
+        await timer(waitSecs); // esperar por cada peticion
+    } while (status_repeat);
 }
 
 
@@ -128,7 +189,7 @@ function sendEmailAlert(email) {
         from: '"MelarcAB DEV > SALON MANGA ENTRADAS" <' + email_sender + '>',
         to: email,
         subject: "MANGA BARCELONA : PODRÍAN ESTAR DISPONIBLES LAS ENTRADAS",
-        html: "<h1>MANGA BARCELONA ENTRADAS</h1><p>El bot ha detectado coincidencias en la página del salón del manga. <br>Podrían haber publicado la compra de las entradas. Hecha un vistazo -> </p> <a href='https://www.manga-barcelona.com/es/inicio.cfm'>CLIC PARA IR A LA WEB</a>"
+        html: "<h1>MANGA BARCELONA ENTRADAS</h1><p>El bot ha detectado coincidencias o cambios en la página del salón del manga. <br>Podrían haber publicado la compra de las entradas. Hecha un vistazo -> </p> <a href='https://www.manga-barcelona.com/es/tickets.cfm'>CLIC PARA IR A LA WEB</a>"
     };
 
     transporter.sendMail(mailOptions, function (err, info) {
